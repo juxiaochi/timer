@@ -57,9 +57,6 @@ class Timer final {
 
    private:
     uint32_t intervalMS_;
-    uint32_t delayMS_;
-    Handler handler_;
-    void *arg_;
     std::string name_;
     TimerNodePtr node_;
 };

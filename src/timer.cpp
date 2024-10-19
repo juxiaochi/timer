@@ -11,17 +11,21 @@
 
 #include "timer.h"
 
+#include "timer_manager.h"
+
 namespace stroll {
 
 Timer::Timer(const char *name, Handler handler, void *arg, uint32_t intervalMS, uint32_t delayMS)
-    : intervalMS_(intervalMS), delayMS_(delayMS), handler_(handler), arg_(arg), name_(name) {}
+    : intervalMS_(intervalMS), name_(name) {
+    node_ = TimerManager::Instance().AddTimer(name_, handler, arg, intervalMS, delayMS);
+}
 
 Timer::~Timer() {}
 
-int Timer::Start() { return 0; }
+int Timer::Start() { return TimerManager::Instance().Start(node_); }
 
-int Timer::Stop() { return 0; }
+int Timer::Stop() { return TimerManager::Instance().Stop(node_); }
 
-int Timer::SetInterval(uint32_t intervalMS) { return 0; }
+int Timer::SetInterval(uint32_t intervalMS) { return TimerManager::Instance().SetInterval(node_, intervalMS); }
 
 }  // namespace stroll

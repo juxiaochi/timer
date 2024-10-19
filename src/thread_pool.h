@@ -33,14 +33,25 @@ class ThreadPool final {
     explicit ThreadPool(unsigned threadNum);
     ~ThreadPool();
 
+    /// @brief 唤醒一个线程去支持task， 线程池中线程全忙时会失败
+    /// @param t 任务
+    /// @param arg 自定义参数，仅透传
+    /// @return =0:成功， 其他:失败
+    int Notify(Task t, void *arg);
+
+    int GetIdleThreadNum(void) const {
+        std::lock_guard<std::mutex> guard(mtx_);
+        return idle_thread_num_;
+    }
+
    private:
     void run(void);
 
    private:
     bool exit_flag_ = false;
-    unsigned free_thread_num_ = 0;
+    unsigned idle_thread_num_ = 0;
     TaskInfo task_;
-    std::mutex mtx_;
+    mutable std::mutex mtx_;
     std::condition_variable cond_;
     std::vector<std::thread> threads_;
 };
