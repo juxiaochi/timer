@@ -34,11 +34,9 @@ ThreadPool::~ThreadPool() {
     }
 }
 
-int ThreadPool::Notify(Task t, void *arg)
-{
+int ThreadPool::Notify(Task t, void *arg) {
     std::lock_guard<std::mutex> guard(mtx_);
-    if (idle_thread_num_ == 0)
-    {
+    if (idle_thread_num_ == 0) {
         WARN("no free thread !!!\n");
         return -1;
     }
@@ -58,6 +56,7 @@ void ThreadPool::run(void) {
         std::unique_lock<std::mutex> lock(mtx_);
         idle_thread_num_ += 1;
         cond_.wait(lock);
+        idle_thread_num_ -= 1;
 
         //< 线程退出
         if (exit_flag_) {
@@ -70,7 +69,6 @@ void ThreadPool::run(void) {
             WARN("thread pool wake up !!!\n");
             continue;
         }
-        idle_thread_num_ -= 1;
 
         using std::swap;
         TaskInfo tmp_task;
