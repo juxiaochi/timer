@@ -20,7 +20,9 @@ Timer::Timer(const char *name, Handler handler, void *arg, uint32_t intervalMS, 
     node_ = TimerManager::Instance().AddTimer(name_, handler, arg, intervalMS, delayMS);
 }
 
-Timer::~Timer() {}
+Timer::~Timer() {
+    TimerManager::Instance().DeleteTimer(node_);
+}
 
 int Timer::Start() { return TimerManager::Instance().Start(node_); }
 
