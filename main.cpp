@@ -18,12 +18,14 @@ using namespace stroll;
 
 void test(void *arg)
 {
-    printf("test\n");
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    printf("[%s] %ld.%ld\n", (char *)arg, ts.tv_sec, ts.tv_nsec/1000/1000);
 }
 
 int main()
 {
-    Timer t("main", test, nullptr, 1000, 1000);
+    Timer t("main", test, (void *)"test0", 1000, 1000);
     t.Start();
     printf("press any key to exit\n");
     getchar();
