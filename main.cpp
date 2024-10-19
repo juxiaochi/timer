@@ -13,6 +13,7 @@
 #include "timer.h"
 
 #include <cstdio>
+#include <unistd.h>
 
 using namespace stroll;
 
@@ -23,10 +24,18 @@ void test(void *arg)
     printf("[%s] %ld.%ld\n", (char *)arg, ts.tv_sec, ts.tv_nsec/1000/1000);
 }
 
+void test1(void *arg)
+{
+    test(arg);
+    // sleep(13);
+}
+
 int main()
 {
     Timer t("main", test, (void *)"test0", 1000, 1000);
+    Timer t1("main1", test1, (void *)"test1", 3000, 1000);
     t.Start();
+    t1.Start();
     printf("press any key to exit\n");
     getchar();
     return 0;

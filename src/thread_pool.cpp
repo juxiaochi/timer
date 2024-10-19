@@ -15,7 +15,7 @@
 
 namespace stroll {
 
-ThreadPool::ThreadPool(unsigned threadNum) {
+ThreadPool::ThreadPool(int threadNum) {
     threads_.reserve(threadNum);
     for (auto i = 0; i < threadNum; ++i) {
         threads_.emplace_back(std::thread(&ThreadPool::run, this));

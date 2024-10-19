@@ -14,6 +14,7 @@
 #include <queue>
 #include <mutex>
 #include <string>
+#include <vector>
 
 #include "timer.h"
 #include "timer_node.h"
@@ -55,7 +56,8 @@ private:
     void Schedule(void *);
     void RunTimer(TimerNodePtr, void *);
     
-    void UpdateHeap(TimerNodePtr node) {
+    void UpdateHeap() {
+        auto node = heap_.top();
         heap_.pop();
         node->UpdateExpireTime();
         heap_.push(node);
@@ -68,10 +70,19 @@ private:
     TimerNodePtr GetWorkNode(void);
 
 private:
+    struct TimerNodePtrCompare
+    {
+        bool operator()(const TimerNodePtr &lh, const TimerNodePtr &rh) {
+            return lh->expire_time > rh->expire_time;
+        }
+    };
+    using Heap = std::priority_queue<TimerNodePtr, 
+                        std::vector<TimerNodePtr>, 
+                        TimerNodePtrCompare>;
     bool exit_flag_ = false;
     ThreadPool thread_pool_;
     std::mutex mtx_;
-    std::priority_queue<TimerNodePtr> heap_;
+    Heap heap_;
 
 };
 

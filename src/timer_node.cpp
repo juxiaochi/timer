@@ -15,11 +15,12 @@
 #include "trace.h"
 #include "utils.h"
 
-namespace stroll {
-
-bool operator<(const TimerNode &lhs, const TimerNode &rhs) {
-    return lhs.expire_time > rhs.expire_time;
+bool operator<(const stroll::TimerNodePtr &lhs, const stroll::TimerNodePtr &rhs) {
+    printf("operator<\n");
+    return lhs->expire_time > rhs->expire_time;
 }
+
+namespace stroll {
 
 TimerNode::TimerNode(std::string &name, Timer::Handler h, void *arg, uint32_t interval_ms, uint32_t delay_ms)
     : handler(h),
@@ -38,6 +39,7 @@ int TimerNode::Start() {
     expire_time = start_tick + delay_ns;
     UpdateStatusImpl(TimerStatus::kActivate);
     pause_flag = false;
+    // INFO("%s expire_time:%ld\n", name.c_str(), expire_time);
     return 0;
 }
 

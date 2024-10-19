@@ -30,7 +30,7 @@ class ThreadPool final {
     };
     
    public:
-    explicit ThreadPool(unsigned threadNum);
+    explicit ThreadPool(int threadNum);
     ~ThreadPool();
 
     /// @brief 唤醒一个线程去支持task， 线程池中线程全忙时会失败

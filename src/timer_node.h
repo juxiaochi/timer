@@ -56,7 +56,7 @@ struct TimerNode final {
         }
         expire_time += interval_ns;
     }
-
+    
 private:
     int UpdateStatusImpl(TimerStatus s);
 };

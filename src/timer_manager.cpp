@@ -55,6 +55,7 @@ void TimerManager::Schedule(void *arg) {
         std::unique_lock<std::mutex> lock(mtx_);
         auto node = GetWorkNode();
         if (!node) {
+            lock.unlock();
             std::this_thread::sleep_for(std::chrono::milliseconds(kPollStepMS));
             continue;
         }
@@ -63,12 +64,13 @@ void TimerManager::Schedule(void *arg) {
         //< 需要判断线程池是否有空闲的线程，否则会出现调度线程无法唤醒
         if (thread_pool_.GetIdleThreadNum() == 0) {
             WARN("no idle thread !!!\n");
+            lock.unlock();
             std::this_thread::sleep_for(std::chrono::milliseconds(kPollStepMS));
             continue;
         }
 
         //< 就地执行任务，唤醒另一个线程去执行调度程序
-        UpdateHeap(node);
+        UpdateHeap();
         lock.unlock();
         AddTack2ThreadPool();
         
@@ -81,6 +83,10 @@ void TimerManager::Schedule(void *arg) {
 TimerNodePtr TimerManager::GetWorkNode(void) {
     uint64_t now = GetTickCount();
     while (true) {
+        if (heap_.empty()) {
+            return nullptr;
+        }
+
         auto node = heap_.top();
         if (node->expire_time > now) {
             return nullptr;
@@ -89,7 +95,7 @@ TimerNodePtr TimerManager::GetWorkNode(void) {
         //< 运行超时的定时器，要等待到下一个调度周期
         if (node->status == TimerStatus::kRunning) {
             WARN("[%s] run timeout \n", node->name.c_str());
-            UpdateHeap(node);
+            UpdateHeap();
             continue;
         }
         return node;
