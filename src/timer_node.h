@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <string>
 #include <mutex>
+#include <condition_variable>
 
 #include "timer.h"
 
@@ -36,14 +37,19 @@ struct TimerNode final {
     uint64_t start_tick = 0;   //< 开始时间
     uint64_t expire_time = -1;  //< 到期时间
     TimerStatus status = TimerStatus::kIDLE;
-    bool pause_flag = true;  // 挂起标志
+    bool pause_flag = true;  //< 挂起标志
+    bool delete_flag = false;   //< 删除标记
 
     TimerNode(std::string &name, Timer::Handler, void *arg, uint32_t interval_ms, uint32_t delay_ms);
     ~TimerNode() = default;
 
     int Start();
     int Stop();
-    int StopAndWait();
+
+    int Delete() {
+        delete_flag = true;
+        return 0;
+    }
 
     int UpdateStatus(TimerStatus s) {
         std::lock_guard<std::mutex> lk(mtx);

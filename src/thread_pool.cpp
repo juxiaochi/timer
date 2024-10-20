@@ -20,6 +20,10 @@ ThreadPool::ThreadPool(int threadNum) {
     for (auto i = 0; i < threadNum; ++i) {
         threads_.emplace_back(std::thread(&ThreadPool::run, this));
     }
+
+    if (idle_thread_num_ == 0) {
+        std::this_thread::yield();
+    }
 }
 
 ThreadPool::~ThreadPool() {

@@ -56,10 +56,6 @@ int TimerNode::Stop() {
     return 0;
 }
 
-int TimerNode::StopAndWait() {
-    return 0;
-}
-
 int TimerNode::UpdateStatusImpl(TimerStatus s) {
     switch (s) {
         case TimerStatus::kActivate:

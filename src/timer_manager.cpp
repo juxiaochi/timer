@@ -34,18 +34,33 @@ TimerNodePtr TimerManager::AddTimer(std::string &name, Timer::Handler h, void *a
     return ret;
 }
 
-int TimerManager::DeleteTimer(TimerNodePtr node) { 
-    return -1; 
+int TimerManager::DeleteTimer(TimerNodePtr node) {
+    WARN("delete timer:%s, status:%d\n", node->name.c_str(), (int)node->status);
+    std::lock_guard<std::mutex> guard(mtx_);
+    node->Delete();
+    if (node->status != TimerStatus::kRunning)
+    {
+        return 0;
+    }
+
+    WARN("[%s]destroy timer object, wait timer finish!!!\n", node->name.c_str());
+    while(node->status == TimerStatus::kRunning) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    DEBUG("delete timer:%s success!!!\n", node->name.c_str());
+    return 0;
 }
 
 int TimerManager::SetInterval(TimerNodePtr node, uint32_t interval_ms) {
     if (node->interval_ns == 0) {
         ERROR("[%s] timer is single shot\n", node->name.c_str());
-        return -1;
+        return 0;
     }
-
-    node->interval_ns = MilliSecond2NaoSecond(interval_ms);
-    return 0;
+    
+    auto interval_ns = MilliSecond2NaoSecond(interval_ms);
+    std::swap(node->interval_ns, interval_ns);
+    return interval_ns / 1000 / 1000;
 }
 
 unsigned TimerManager::MakeThreadNumber(void) {
@@ -75,6 +90,8 @@ void TimerManager::Schedule(void *arg) {
 
         //< 就地执行任务，唤醒另一个线程去执行调度程序
         UpdateHeap();
+        // 执行前设置为运行中状态
+        node->UpdateStatus(TimerStatus::kRunning);
         lock.unlock();
         AddTack2ThreadPool();
         
@@ -92,6 +109,12 @@ TimerNodePtr TimerManager::GetWorkNode(void) {
         }
 
         auto node = heap_.top();
+        if (node->delete_flag)
+        {
+            heap_.pop();
+            continue;
+        }
+
         if (node->expire_time > now) {
             return nullptr;
         }
@@ -107,8 +130,7 @@ TimerNodePtr TimerManager::GetWorkNode(void) {
 }
 
 void TimerManager::RunTimer(TimerNodePtr node, void *arg) {
-    // 执行前设置为运行中状态， 执行完成后设置为激活状态
-    node->UpdateStatus(TimerStatus::kRunning);
+    // 执行完成后设置为激活状态
     node->handler(node->arg);
     node->UpdateStatus(TimerStatus::kActivate);
     if (node->interval_ns == 0 || node->pause_flag) {
