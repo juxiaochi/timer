@@ -1,3 +1,3 @@
 
 mkdir -p cmake-build
-cd cmake-build;cmake ..;make
+cd cmake-build;cmake -DCMAKE_BUILD_TYPE=Debug ..;make
