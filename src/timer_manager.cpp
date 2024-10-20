@@ -22,7 +22,9 @@ TimerManager::TimerManager() : thread_pool_(MakeThreadNumber()) {
     AddTack2ThreadPool();
 }
 
-TimerManager::~TimerManager() {}
+TimerManager::~TimerManager() {
+    exit_flag_ = true;
+}
 
 TimerNodePtr TimerManager::AddTimer(std::string &name, Timer::Handler h, void *arg, uint32_t interval_ms,
                                     uint32_t delay_ms) {
@@ -32,7 +34,9 @@ TimerNodePtr TimerManager::AddTimer(std::string &name, Timer::Handler h, void *a
     return ret;
 }
 
-int TimerManager::DeleteTimer(TimerNodePtr node) { return -1; }
+int TimerManager::DeleteTimer(TimerNodePtr node) { 
+    return -1; 
+}
 
 int TimerManager::SetInterval(TimerNodePtr node, uint32_t interval_ms) {
     if (node->interval_ns == 0) {

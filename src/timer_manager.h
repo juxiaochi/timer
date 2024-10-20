@@ -27,7 +27,7 @@ class TimerManager final
 {
     //< 调度线程轮询步长(毫秒)，如果想要定时器调度精度高，就减小轮询步长
     //< 过小的步长，会导致CPU占用率较高，建议在10ms以上
-    static constexpr unsigned kPollStepMS = 10;
+    static constexpr unsigned kPollStepMS = 5;
 
     //< 线程池中线程最小数
     static constexpr unsigned kMinThreadNum = 4;

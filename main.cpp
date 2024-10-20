@@ -15,18 +15,18 @@
 #include <cstdio>
 #include <unistd.h>
 
+#include "trace.h"
+
 using namespace stroll;
 
 void test(void *arg)
 {
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    printf("[%s] %ld.%ld\n", (char *)arg, ts.tv_sec, ts.tv_nsec/1000/1000);
+    INFO(" %s \n", (char *)arg);
 }
 
 void test1(void *arg)
 {
-    test(arg);
+    WARN(" %s\n", (char *)arg);
     // sleep(13);
 }
 

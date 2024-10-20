@@ -52,7 +52,7 @@ int ThreadPool::Notify(Task t, void *arg) {
 }
 
 void ThreadPool::run(void) {
-    while (true) {
+    while (!exit_flag_) {
         std::unique_lock<std::mutex> lock(mtx_);
         idle_thread_num_ += 1;
         cond_.wait(lock);
