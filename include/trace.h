@@ -14,8 +14,6 @@
 #include <cstdio>
 #include <time.h>
 
-#define TIMER_DEBUG 1
-
 #ifdef TIMER_DEBUG
 #define DEBUG(FMT, arg...) \
     TRACE("DEBUG", FMT, ##arg)
