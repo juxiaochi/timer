@@ -21,7 +21,12 @@ ThreadPool::ThreadPool(int threadNum) {
         threads_.emplace_back(std::thread(&ThreadPool::run, this));
     }
 
-    if (idle_thread_num_ == 0) {
+    while (true) {
+        std::unique_lock<std::mutex> lock(mtx_);
+        if (idle_thread_num_ != 0) {
+            break;
+        }
+        lock.unlock();
         std::this_thread::yield();
     }
 }
